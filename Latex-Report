@@ -1,0 +1,597 @@
+\documentclass[a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{csquotes}
+\usepackage{minted}
+\setminted[python]{breaklines, framesep=2mm, fontsize=\footnotesize, numbersep=5pt}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage[english]{babel}
+\newtheorem{theorem}{Theorem}[section]
+\usepackage{verbatim}
+\usepackage[
+backend=biber,
+style=nature,
+]{biblatex}
+\title{A bibLaTeX example}
+\addbibresource{sample.bib} %Imports bibliography file
+
+\title{AMATH382 Final Project: Tumor Modeling with Helper T Cells and Invariant Natural Killer T Cells}
+\author{Bryan Zang, Jerry Zhou  \\
+        \small Department of Applied Mathematics \\
+        \small University of Waterloo
+}
+\date{\small 19 April 2024} % Comment this line to show today's date
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Finding the cure to cancer is an exaggerated metaphor that has been used to imply how difficult and important a task is. With no doubt this is indeed the case, but this is not to say the task is impossible --- at the very least, researchers have been able to study and observe (1) the behavior of cancerous cells in response to various treatments and (2) the human body's natural response to cancer. We further look into the latter idea through the lens of an existing mathematical model \textcolor{blue}{\cite{dong}} and propose a novel extension for which we investigate further upon this extended model's behavior. 
+\end{abstract} \vspace{5pt}
+
+\section{Introduction}
+
+\subsection{Tumor Cells}
+
+A tumor is an abnormal mass of tissue that grows/divides more than it should or does not die when it should \textcolor{blue}{\cite{NIHdef}} and it is composed of tumor cells; where each cell also has the mentioned properties. Unlike normal cells that follow a well-regulated cycle of growth, division, and death, tumor cells bypass these regulatory mechanisms often due to genetic mutations. Of which, may include those that control cell cycle progression, apoptosis (programmed cell death), and DNA repair mechanisms. Tumors in general can be classified to be either benign, pre-malignant, or malignant. Benign tumors are non-cancerous while the latter two are, respectively, tumors that can develop to be cancerous later on or are already cancerous. Cancerous cells have the potential to invade nearby tissues and spread to other parts of the body through a process known as metastasis. The fast reproduction rate causes two issues to arise: (1) the cancerous cells fail to differentiate and hence will not function properly and (2) the pre-mature division can lead to higher probability in inheriting genetic faults in which the latter incentivizes the prior.
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.115]{tumor.jpg}
+    \caption{benign and malignant tumor cells from Wikipedia \textcolor{blue}{\cite{tumor}}}
+\end{figure}
+
+\subsection{Effector Cells}
+
+Effector cells (ECs) are cells that carry out certain actions in response to stimulation; in this paper we consider ECs to be specifically the cells in the immune system, that is, cells which are relatively short-lived and produced by the body in an immune response. Natural killer cells (NKs) are in particular, an example of antitumor effector cells \textcolor{blue}{\cite{shimasaki}} and so are CD8+ cytotoxic T lymphocytes (CTLs), which are notably the most powerful effectors in the anticancer immune response \textcolor{blue}{\cite{raskov}}. These two cells are cytotoxic towards tumor cells, in other words, they kill off tumors by secreting proteins such as perforin and granzymes into the cytoplasm to induce cell death \textcolor{blue}{\cite{topham}}. Note that the functionalities may seem the same, however, the difference in the two on a simplified level of understanding is that NKs are a key component in the innate immune system while CTLs are a component in the adaptive immune system. The innate immune system acts as a first-line of defence against foreign bodies as its responds quickly and towards any antigen, on the other hand, the adaptive immune system responds to specific antigens and the response will be slower but more effective than that of the innate immune system \textcolor{blue}{\cite{nihimm}}.
+
+\subsection{Helper Cells}
+
+To obtain efficient antitumor immunity, the work of the CD4+ T Cells cannot be neglected as these cells are crucial in generating and directing the development of CD8+ T cells. In particular, CD4+ cells are stimulated by either macrophages or dendritic cells (DCs) to secrete the interleukin-2 cytokine (IL-2) which then stimulates the proliferation of T cells \textcolor{blue}{\cite{dong}}. This phenomenon is called CD4+ T cell help, hence the name Helper T Cells (HTCs).
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.67]{cd8plus.png}
+    \caption{simplified visualization of immune system cell response to intruder cell \textcolor{blue}{\cite{net}}}
+\end{figure}
+
+\section{Models}
+
+\subsection{Development}
+
+The predator-prey model developed by Lotka-Volterra was used to help motivate for the development of one of the first cancer models by Kuznetsov et al.
+$$\begin{cases}
+    \frac{dT}{dt}=aT(1-bT)-nET\\
+    \frac{dE}{dt}=s-dE+p\cdot\frac{ET}{g+T}-mET
+\end{cases}$$
+here $T,E$ are the populations of tumor cells and effector cells respectively and for the TCs dynamics, $a$ is the maximal growth rate and $b^{-1}$ is the maximal carrying capacity, $nET$ is the amount of loss of TCs due to ECs; for the ECs dynamics, $s$ is the normal influx rate of matured ECs into the tumor site, $d$ is the natural death rate of ECs, $p\cdot\frac{ET}{g+T}$ is the growth of ECs due to TCs, and $mET$ is the loss of ECs due to TCs. Galach simplified this model by replacing the Michaelis-Menten term with a Lotka-Volterra form --- $\theta ET$ where $\theta=\frac{p}{g+T}$ --- to obtain
+$$\begin{cases}
+    \frac{dT}{dt}=aT(1-bT)-nET\\
+    \frac{dE}{dt}=s-dE+kET
+\end{cases}$$
+where $k=\theta-m$ and all parameters are positive except $k$ since $k$ is dependent on the value of $\theta$ and $m$. Later on, Galach induced a time delay of $\tau$ to account for the immune system response time, for which the term $kET$ was replaced with $kE(t-\tau)T(t-\tau)$. Building off of this model, Dong et al. incorporate the role of HTCs into the system to obtain
+$$\begin{cases}
+    \frac{dT}{dt}=aT(1-bT)-nET\\
+    \frac{dE}{dt}=k_1TE-d_1E+pEH\\
+    \frac{dH}{dt}=s_2+k_2TH-d_2H
+\end{cases}$$
+where $T,E$ are as before mentioned and $H$ is the population of HTCs. The first equation remains unchanged; in the second equation we have $d_1^{-1}$ to be the natural lifespan of ECs, $k_1$ is the stimulation rate of ECs, $p$ is activation rate of ECs by HTCs; and in the third equation, $s_2$ is the birth rate of HTCs, $d_2^{-1}$ is the natural lifespan of HTCs, and $k_2$ is the stimulation rate of HTCs by antigens. This model is then non-dimensionalized for ease of analysis
+\begin{align*}
+&x=\frac{T}{T_0},\quad y=\frac{E}{E_0},\quad z=\frac{H}{H_0},\quad \tau=nT_0t,\quad \alpha=\frac{a}{nT_0},\quad \beta=bT_0\\
+&\delta_1=\frac{d_1}{nT_0},\quad \omega_1=\frac{k_1}{n},\quad \rho=\frac{p}{n},\quad \sigma_2=\frac{s_2}{nT_0H_0},\quad \delta_2=\frac{d_2}{nT_0},\quad \omega_2=\frac{k_2}{n}
+\end{align*}
+recall that $n$ is the loss rate of TCs due to ECs and $T_0=E_0=H_0=10^6$ are scaling parameters. This yields the dimensionless model
+$$\begin{cases}
+    \frac{dx}{dt}=\alpha x(1-\beta x)-xy\\[0.5em]
+    \frac{dy}{dt}=\omega_1xy-\delta_1y+\rho yz\\[0.5em]
+    \frac{dz}{dt}=\sigma_2+\omega_2xz-\delta_2z
+\end{cases}$$
+we will denote this as the no treatment model; as for the treatment model, Dong et al. introduced a constant treatment term $s_1$ --- non-dimensionalized to be $\sigma_1=\frac{s_1}{nT_0E_0}$ --- into the second equation to obtain
+$$\begin{cases}
+    \frac{dx}{dt}=\alpha x(1-\beta x)-xy\\
+    \frac{dy}{dt}=\sigma_1+\omega_1xy-\delta_1y+\rho yz\\
+    \frac{dz}{dt}=\sigma_2+\omega_2xz-\delta_2z
+\end{cases}$$
+and we can visualize the model as following:
+\begin{center}
+    \includegraphics[scale=0.30]{0c39566924848e1410648aa9f8cf107.png}
+\end{center}
+note that the model we are working with does not account for the losses of species when used up by another, so to express it graphically, we manually added pathways to offset the imbalance for the model to work as how the equations are written.
+
+\subsection{Results}
+
+\subsubsection{Theoretical}\label{theory}
+
+Let us consider the no treatment model by Dong et al. without the incorporation of HTCs, then the model is given by
+$$\begin{cases}
+    \frac{dx}{dt}=\alpha x(1-\beta x)-xy\\[0.5em]
+    \frac{dy}{dt}=\omega_1xy-\delta_1y
+\end{cases}$$
+we note that at $(0,0)$ there is an unstable steady state for the system, and since we consider there to be no TCs while setting ECs to be arbitrary (although the point itself is found to be at when there are no ECs), we classify this type of equilibrium point as a tumor-free equilibrium. It can be shown that there is also a locally stable boundary equilibrium at $(1/\beta,0)$ for when $\omega_1\leq\beta\delta_1$ and otherwise a locally stable interior equilibrium point at $(\delta_1/\omega_1,\alpha(\omega_1-\delta_1\beta)/\omega_1)$. These two equilibria are respectively called the tumor-dominant equilibrium and the immune-control equilibrium since for the prior case we consider no ECs while setting TCs to be arbitrary and in the latter case we consider no limitations on the amount of TCs and ECs and let the model completely dictate the course of the populations (hence immune-control).\\
+\newline
+Let $E_0,E_1$ denote respectively tumor-free and tumor-dominant equilibria under the no treatment model, $E^+,E^*$ denote respectively immune-control equilibria under the treatment and no treatment model, and $E^-$ denote tumor-free equilibrium under the treatment model. Then this idea can extended be to the no treatment and treatment models with the HTCs population and it is proven by Dong et al. that under the no treatment model: (1) there is always a tumor-free unstable equilibrium; (2) there is a locally stable tumor-dominant equilibrium for $\omega_1<\beta\delta_1$ and $\rho<(\beta\delta_1-\omega_1)(\beta\delta_2-\omega_2)/(\beta^2\sigma_2)$; and (3) there is a locally stable immune-control equilibrium for when $0<\rho<(\delta_1\delta_2)/\sigma_2$, $x<1/\beta$, and $0<(\alpha\beta x)^2(\delta_2-\omega_2 x)+\alpha^2(1-\beta x)+\alpha\beta x(\delta_2-\omega_2x)^2-\alpha\omega_2x(1-\beta x)(\delta_1-\omega_1x)$. Similarly for the treatment model, it is proven: (1) there is a locally stable tumor-free equilibrium when $(\delta_1\delta_2)/\sigma_2-(\sigma-1\delta_2)/(\alpha\sigma_2)<\rho<(\delta_1\delta_2)/\sigma_2$ and $\alpha\delta_1>\sigma_1$; and (2) there is a locally stable immune-control equilibrium when $x<1/\beta$, $\rho<(\delta_1\delta_2)/\sigma_2-(\sigma-1\delta_2)/(\alpha\sigma_2)$, and $0<(\alpha\beta x+\sigma_1/y)\left(\alpha\beta x\frac{\sigma_1}{y}+\alpha\beta x\frac{\sigma_2}{z}+\frac{\sigma_1\sigma_2}{yz}+\omega_1xy\right)+\frac{\sigma_2}{z}\left(\alpha\beta x\frac{\sigma_2}{z}+\frac{\sigma_1\sigma_2}{yz}\right)-\rho\omega_2xyz$. Note that for the treatment model there is no tumor-dominant case since we added a positive constant treatment rate of $\sigma_1$. Clearly, these conditions cannot be well understood by biological means since the expressions are far too complicated to interpret with logical results.
+
+\subsubsection{Numerical}
+
+We attempt to understand the conditions above by empirical means with given arbitrary input parameters:
+$$\alpha=1.636,\quad\beta=0.002,\delta_1=0.3743,\quad\omega_1=0.04,\quad\omega_2=0.38,\quad\delta_2=0.055$$
+we can get approximate values of $(\delta_1\delta_2)/\sigma_2=0.054175$ and $(\delta_1\delta_2)/\sigma_2-(\sigma-1\delta_2)/(\alpha\sigma_2)=0.0437267$; the stability of $E^*$ and $E^+$ were analyzed using Hopf bifurcation curves
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.32]{2.2.0.png}
+    \caption{stability regions of the two equilibria in the $\rho-\omega_2$ plane \textcolor{blue}{\cite{dong}}}
+    \label{fig3_hopf}
+\end{figure}
+
+\noindent then running numerical simulations on the points chosen in figure \textcolor{blue}{\ref{fig3_hopf}} we can get the same results
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.33]{2.2.1.png}
+    \caption{this equilibrium $\tilde E^*$ is stable}
+\end{figure}
+
+\noindent under the no treatment model, only one point was considered to show the stability of $E^*$, we note
+$$(\alpha\beta x)^2(\delta_2-\omega_2 x)+\alpha^2(1-\beta x)+\alpha\beta x(\delta_2-\omega_2x)^2-\alpha\omega_2x(1-\beta x)(\delta_1-\omega_1x)=>0$$
+so it is indeed the case that when the above holds, there is a stable immune-control equilibrium when TC population is less than its maximal carrying capacity and EC activation rate is less than the ratio of the inverse of the product of the natural lifespans of ECs and HTCs to the birth rate of HTCs. For $\tilde E^+$, we can obtain
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.34]{2.2.2.1.png}
+    \caption{local asymptotic stability of $\tilde E^+$}
+\end{figure}
+
+\noindent we see that for the chosen points, the stability conditions from section \textcolor{blue}{\ref{theory}} hold, that is, for the corresponding simulation parameters we have
+$$(\alpha\beta x+\sigma_1/y)\left(\alpha\beta x\frac{\sigma_1}{y}+\alpha\beta x\frac{\sigma_2}{z}+\frac{\sigma_1\sigma_2}{yz}+\omega_1xy\right)+\frac{\sigma_2}{z}\left(\alpha\beta x\frac{\sigma_2}{z}+\frac{\sigma_1\sigma_2}{yz}\right)-\rho\omega_2xyz>0$$
+and indeed that the TCs are less than the maximal carrying capacity and that the EC activation rates plus the corresponding ratios of the product of treatment term and inverse natural lifespan of EC to the product of maximal TC growth rate and EC birth rate are less than the ratio of the inverse of the product of the natural lifespans of ECs and HTCs to the birth rate of HTCs. Considering two other points for $E^*$ we have
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.34]{2.2.2.2.png}
+    \caption{periodic oscillations around $\tilde E^+$}
+\end{figure}
+
+\noindent in these latter two cases we see clear oscillatory behavior around the steady state values and hence implying that the stability conditions from section \textcolor{blue}{\ref{theory}} do not hold. However, we note that both have stable limit cycles and that the prior case results in small amplitudes of HTCs while the prior yields large amplitudes of HTCs (recall $x,y,z$ are from the dimensionless model and that $y$ represents HTCs).
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.37]{2.2.3.png}
+    \caption{limit cycles of $\tilde E^+$}
+\end{figure}
+
+\noindent from these results Dong et al. conclude that it is possible to reach the tumor-free steady state and hence implying the activation of HTCs into ECs (under certain parameter restrictions i.e., $\rho < (\delta_1\delta_2)/\sigma_2$) can eliminate the presence of TCs. It is also found to be the case that in violating some of these parameter restrictions, TCs and ECs can as a result coexist over a long period of time (represented by the oscillatory behaviors seen above). However, an important remark is that when EC activation rate is too high, we see the EC population grows exponentially (following page) this may be explained by how an overly strong immune response can also be harmful towards non-cancer cells, this can lead to autoimmune diseases or allergic reactions \textcolor{blue}{\cite{climmune}}.
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.34]{2.2.4.png}
+    \caption{limit cycles of $\tilde E^+$}
+\end{figure}
+
+\section{Extension}
+\vspace{10pt}
+\subsection{Additional Definitions}
+
+\subsubsection{Invariant Natural Killer T Cells}
+
+Previously, we have seen the importance of CD4+ HTCs and CD8+ CTLs in cancer immunotherapy, now extending the model developed by Dong et al., we introduce a new cell called the invariant Natural Killer T Cell (iNKT). Natural Killer T Cells (NKTs) and NKs share many phenotypes and functions for antitumor immunity, as the cancer stages increase, we also see that both cells develop to have impaired cytotoxic capacities and as well as dysfunctional states \textcolor{blue}{\cite{liu}}. Eventually, NK cells become senescent cells (stops multiplying but do not die when they should), while NKTs (excluding iNKTs), are completely exhausted. iNKT cells on the other hand develop to have both activation and effector functions, meaning not only can iNKT induce the activation of other immune ECs, but also directly kill cancer cells. We will incorporate this new population using the same dynamics as Dong et al. to match the overall high level understanding.
+
+\subsubsection{Apoptosis}
+
+In contrast to CD8+ CTLs, iNKT cells kill cancer cells through both the granule exocytosis pathway (i.e., secreting perforin into the ctyoplasm of TCs) and the extrinsic apoptotic pathway. Both methods require cell-to-cell interaction and activation of executioner caspases (), but the latter requires an additional ligand binding to conduct Fas/FasL interactions \textcolor{blue}{\cite{look}}. This channel leads to apoptosis mediated by mediated by caspase activation, hence killing the contacted TCs \textcolor{blue}{\cite{waring}}. We consider this effect through the lens of a high level understanding, following the structure of that of Dong et al. we propose to capture this effect adding a linear loss rate (induced by the iNKT population) to the TC population.
+\vspace{10pt}
+\subsection{Model Modification}
+
+As suggested above, we can now modify the model from the paper to include the new parameter iNKT, denoted by $\eta$. Since iNKT exhibits behavior similar to HTCs, we can assume that iNKT has the same effect on ECs. Furthermore, because iNKT induces apoptosis in TCs, we can formulate the model as follows by using a similar approach, thus we obtain the following non-treatment model:
+\begin{equation}\label{eq:1}
+\begin{cases}
+\begin{aligned}
+\frac{dx}{dt} &= \alpha x (1 - \beta x) - xy - x\xi\eta\\
+\frac{dy}{dt} &= w_1 x y - \delta_1 y + \rho z y+ \gamma y \eta \\
+\frac{dz}{dt} &= \sigma_2 + w_2 xz - \delta_2 z \\
+\frac{d\eta}{dt} &= \sigma_3 + w_3 x\eta - \delta_3 \eta
+\end{aligned}
+\end{cases}
+\end{equation}
+Here $x$ represents the TCs, $y$ represents the ECs, $z$ represents the HTCs, and $\eta$ represents the population of new species, iNKT. The term $-x\xi\eta$ indicates the apoptosis induced by iNKT in TCs, while $\gamma y \eta$ represents the impact of iNKT on the ECs. Thus, we can visualize the model as following:
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.30]{4c0eca278a6def0d62c25ecc1cb39e1.png}
+    \caption{graphic representation of the new model}
+\end{figure}
+\newline
+where the red color indicates the new factors.\\
+\newline
+Furthermore, similar to the approach in the paper, we obtain a treatment model as follows: 
+\begin{equation}\label{eq:2}
+\begin{cases}
+\begin{aligned}
+\frac{dx}{dt} &= \alpha x (1 - \beta x) - xy - x\xi\eta\\
+\frac{dy}{dt} &= \sigma_1 +w_1 x y - \delta_1 y + \rho z y+ \gamma y \eta \\
+\frac{dz}{dt} &= \sigma_2 + w_2 xz - \delta_2 z \\
+\frac{d\eta}{dt} &= \sigma_3 + w_3 x\eta - \delta_3 \eta
+\end{aligned}
+\end{cases}
+\end{equation}
+where $\sigma_1$ is the treatment factor follows from the paper. Later on, we will demonstrate the validity of our modified model.
+
+\subsection{Stability Analysis}
+
+\subsubsection{Non-treatment Model \textcolor{blue}{\eqref{eq:1}}}
+
+To obtain the steady state of the non-treatment model, we can set
+$$\frac{dx}{dt} = 0,\quad\frac{dy}{dt} = 0,\quad \frac{dz}{dt} = 0,\quad \frac{d\eta}{dt} = 0$$
+thus we can get the following equations:
+\begin{equation}\label{eq:3}
+\begin{aligned}
+0 &= x\left[\alpha  (1 - \beta x) - y - \xi\eta\right]\\
+0 &= y\left(w_1 x - \delta_1  + \rho z + \gamma  \eta\right)  \\
+0 &= \sigma_2 + w_2 xz - \delta_2 z \\
+0 &= \sigma_3 + w_3 x\eta - \delta_3 \eta
+\end{aligned}
+\end{equation}
+Putting $x$ = 0 yields the tumor-free equilibrium, namely,
+$$\hat{E_0} = (x_0\text{, }y_0\text{, }z_0\text{, }\eta_0)= \left(0\text{, }0\text{, }\frac{\sigma_2}{\delta_2}\text{, }\frac{\sigma_3}{\delta_3}\right)$$
+which always exists. To investigate the stability at the steady state, we can linearize the equation \textcolor{blue}{\eqref{eq:3}} and obtain the following characteristic matrix which calculated from the Jacobian Matrix
+
+\begin{equation}
+ 0 = \text{det}\left(
+\begin{bmatrix}\label{eq:4}
+\alpha (1 - 2\beta x) - y - \xi \eta - \lambda & -x & 0 & -x \xi \\
+y w_1 & w_1 x - \delta_1 + \rho z + \gamma \eta - \lambda & y \rho & y \gamma \\
+w_2 z & 0 & w_2 x - \delta_2 - \lambda & 0 \\
+w_3 \eta & 0 & 0 & w_3 x - \delta_3 - \lambda
+\end{bmatrix}\right)
+\end{equation}
+
+\begin{theorem}\label{eq:20}
+System \textcolor{blue}{\eqref{eq:1}} has one tumor-free equilibrium, which is stable if $\alpha - \xi\frac{\sigma_3}{\delta_3} < 0 $ and $ \delta_1 > \rho \frac{\sigma_2}{\delta_2}+\gamma \frac{\sigma_3}{\delta_3}$ holds
+\end{theorem}
+\begin{proof}
+At $\hat{E_0} = (0\text{, }0\text{, }z_0\text{, }\eta_0)= \left(0\text{, }0\text{, }\frac{\sigma_2}{\delta_2}\text{, }\frac{\sigma_3}{\delta_3}\right)$, the characteristic equation becomes $(\alpha - \xi \eta_0 - \lambda)(- \delta_1 + \rho z_0 + \gamma \eta_0 - \lambda)(- \delta_2 - \lambda)(- \delta_3 - \lambda) = 0 $. Then the two roots of equation are $\lambda_1 = \alpha - \xi \eta_0$ and $\lambda_2 = -\delta_1 + \rho z_0 + \gamma \eta_0$. The system is stable if and only if $\lambda_1 < 0$ and $\lambda_2 < 0$, thus if $\alpha - \xi\frac{\sigma_3}{\delta_3} < 0 $ and $ \delta_1 > \rho \frac{\sigma_2}{\delta_2}+\gamma \frac{\sigma_3}{\delta_3}$ holds, then the system is stable.
+\end{proof}
+\noindent The theorem above demonstrates that the system can reach a stable equilibrium if the elimination rate of TCs caused by iNKT ($-\xi\eta_0$) is greater than the maximal growth rate of TCs ($\alpha$). Alternatively, if the natural lifespan of ECs ($\delta_1$) is shorter than the activation rate of ECs by HTCs ($\rho z_0$) and iNKT ($\gamma \eta_0$), then the number of ECs will approach infinity, resulting in instability. \\
+\newline
+Putting $x \neq 0$ and $y = 0$ yields the tumor-dominant equilibrium, namely 
+$$\hat{E_1} = (x_1\text{, }y_1\text{, }z_1\text{, }\eta_1)= \left(x_1\text{, }0\text{, }\frac{\sigma_2}{\delta_2-w_2 x_1}\text{, }\frac{\sigma_3}{\delta_3-w_3x_1}\right)$$
+Therefore, by substitute the value into equation {\eqref{eq:3}}, we have: 
+$$
+\alpha(1 - \beta x_1)(\delta_3 - w_3 x_1) - \xi \sigma_3 = 0
+$$
+and solve for $x$ we have
+\begin{equation} \label{eq:100}
+    \begin{aligned} 
+    x_{1.1} &= \frac{\alpha(\beta \delta_3 + w_3) - \sqrt{\alpha(\alpha \beta^2 \delta_3^2 - 2\alpha \beta \delta_3 w_3 + \alpha w_3^2 + 4\beta \sigma_3 w_3 \xi)}}{2\alpha \beta w_3}, \\
+    x_{1.2} &= \frac{\alpha(\beta \delta_3 + w_3) + \sqrt{\alpha(\alpha \beta^2 \delta_3^2 - 2\alpha \beta \delta_3 w_3 + \alpha w_3^2 + 4\beta \sigma_3 w_3 \xi)}}{2\alpha \beta w_3}.
+    \end{aligned}
+\end{equation}
+
+\begin{theorem}
+System \textcolor{blue}{\eqref{eq:1}} has one tumor-dominant equilibrium, which is stable if some threshold meets as described below
+\end{theorem}
+\begin{proof}
+At $\hat{E_1} = (x_1\text{, }0\text{, }z_1\text{, }\eta_1)$, the we can get the eigenvalue using equation \textcolor{blue}{\eqref{eq:4}} and get the following eigenvalue: 
+
+\begin{equation} \label{eq:101}
+    \begin{aligned} 
+    \lambda_1 &= -\delta_1 + \gamma \eta_1 + \rho z_1 + w_1 x_1, \\
+    \lambda_2 &= -\delta_2 + w_2 x_1, \\
+    \lambda_3 &= -\alpha \beta x_1 + \frac{\alpha}{2} - \frac{\delta_3}{2} - \frac{\eta_1 \xi}{2} + \frac{w_3 x_1}{2} - \frac{1}{2} \sqrt{D}, \\
+    \lambda_4 &= -\alpha \beta x_1 + \frac{\alpha}{2} - \frac{\delta_3}{2} - \frac{\eta_1 \xi}{2} + \frac{w_3 x_1}{2} + \frac{1}{2} \sqrt{D}
+    \end{aligned}
+\end{equation}
+
+where $D = 4\alpha^2\beta^2x_0^2 - 4\alpha^2\beta x_0 + \alpha^2 - 4\alpha\beta\delta_3 x_0 + 4\alpha\beta\eta_0 x_0\xi + 4\alpha\beta w_3 x_0^2 + 2\alpha\delta_3 - 2\alpha\eta_0\xi - 2\alpha w_3 x_0 + \delta_3^2 - 2\delta_3\eta_0\xi - 2\delta_3 w_3 x_0 + \eta_0^2\xi^2 - 2\eta_0 w_3 x_0\xi + w_3^2 x_0^2$
+\newline
+The system will stable if and only if all the eigenvalues have negative real parts, thus the system is stable if $\gamma \eta_1 + \rho z_1 + w_1 x_1 < \delta_1$ and $w_2 x_1 < \delta_2$ and $-\alpha \beta x_1 + \frac{\alpha}{2} - \frac{\delta_3}{2} - \frac{\eta_1 \xi}{2} + \frac{w_3 x_1}{2} - \frac{1}{2} \sqrt{D} < 0$ and $-\alpha \beta x_1 + \frac{\alpha}{2} - \frac{\delta_3}{2} - \frac{\eta_1 \xi}{2} + \frac{w_3 x_1}{2} + \frac{1}{2} \sqrt{D}$ where $x_1 = \frac{\alpha(\beta \delta_3 + w_3) - \sqrt{\alpha(\alpha \beta^2 \delta_3^2 - 2\alpha \beta \delta_3 w_3 + \alpha w_3^2 + 4\beta \sigma_3 w_3 \xi)}}{2\alpha \beta w_3}$ or $x_1 = \frac{\alpha(\beta \delta_3 + w_3) + \sqrt{\alpha(\alpha \beta^2 \delta_3^2 - 2\alpha \beta \delta_3 w_3 + \alpha w_3^2 + 4\beta \sigma_3 w_3 \xi)}}{2\alpha \beta w_3}$ and $z_1 = \frac{\sigma_2}{\delta_2-w_2 x_1}$ and $\eta_1 = \frac{\sigma_3}{\delta_3-w_3x_1}$
+\end{proof}
+
+\noindent Note that since the Jacobian is a $4\times4$ matrix, the characteristic equation with no parameter restrictions involves hundreds of unknowns. Therefore, it's infeasible to perform further computations, analyze the eigenvalues, and produce a general formula for immune-control equilibrium due to computational power limitations. However, we will include the formula for the characteristic equation in Appendix \textcolor{blue}{\ref{appendix:a}} for interested readers. 
+
+\subsubsection{Treatment Model \textcolor{blue}{\eqref{eq:2}}}
+We follow the same steps as stated in the paper to investigate the effects of HTCs and iNKT in tumor immune interaction under the treatment. To obtain the steady states, again, we set
+$$\frac{dx}{dt} = 0,\quad\frac{dy}{dt} = 0,\quad \frac{dz}{dt} = 0,\quad \frac{d\eta}{dt} = 0$$
+thus we can get the following equations:
+\begin{equation}\label{eq:5}
+\begin{aligned}
+0 &= x\left[\alpha  (1 - \beta x) - y - \xi\eta\right]\\
+0 &= \sigma_1 + y\left(w_1 x - \delta_1  + \rho z + \gamma  \eta\right)  \\
+0 &= \sigma_2 + w_2 xz - \delta_2 z \\
+0 &= \sigma_3 + w_3 x\eta - \delta_3 \eta
+\end{aligned}
+\end{equation}
+Putting $x$ = 0 yields the tumor-free equilibrium, namely,
+$$\hat{E^-} = (x^-\text{, }y^-\text{, }z^-\text{, }\eta^-)= \left(0\text{, }\frac{\sigma_1\delta_2\delta_3}{\delta_1\delta_2\delta_3 - \rho\sigma_2\delta_3 - \gamma \sigma_3\delta_2}\text{, }\frac{\sigma_2}{\delta_2}\text{, }\frac{\sigma_3}{\delta_3}\right)$$
+If $\gamma < \frac{\delta_1\delta_2\delta_3-\rho\sigma_2\delta_3}{\sigma_3\delta_2}$, then $\hat{E^-}$ exists.
+\begin{theorem} \label{eq:21}
+System \textcolor{blue}{\eqref{eq:5}} has one tumor-free equilibrium when $\gamma < \frac{\delta_1\delta_2\delta_3-\rho\sigma_2\delta_3}{\sigma_3\delta_2}$, which is stable if $\alpha < y_0 + \xi\eta_0$ and $\rho z_0 + \gamma \eta_0 < \delta_1$ holds where $y^-_0$, $z^-_0$, $\eta^-_0$ are described as below
+\end{theorem}
+\begin{proof}
+At $\hat{E^-} = (0\text{, }y_0^-\text{, }z_0^-\text{, }\eta_0^-)= \left(0\text{, }\frac{\sigma_1\delta_2\delta_3}{\delta_1\delta_2\delta_3 - \rho\sigma_2\delta_3 - \gamma \sigma_3\delta_2}\text{, }\frac{\sigma_2}{\delta_2}\text{, }\frac{\sigma_3}{\delta_3}\right)$, the characteristic equation \textcolor{blue}{\eqref{eq:4}} becomes $(\alpha - y_0 - \xi \eta_0 - \lambda)(- \delta_1 + \rho z_0 + \gamma \eta_0 - \lambda)(- \delta_2 - \lambda)(- \delta_3 - \lambda) = 0$. Then the two roots of the equation are $\lambda_1 = \alpha - y_0- \xi\eta_0$ and $\lambda_2 = -\delta_1+\rho z_0 + \gamma \eta_0$, Thus $\hat{E^-}$ stable when $\alpha < y_0 + \xi\eta_0$ and $\rho z_0 + \gamma \eta_0 < \delta_1$
+\end{proof}
+\noindent For the case when $x \neq 0$, we have $\hat{E^+} = (x^+, y^+, z^+, \eta^+) = (x, \alpha(1-\beta x) - \xi\eta, \frac{\sigma_2}{\delta_2 - w_2x}, \frac{\sigma_3}{\delta_3 - w_3x})$. However, plugging in these values to demonstrate stabilization using the $4\times4$ characteristic equation matrix is infeasible.\\
+\newline
+In summary, the results presented above confirm that our model will produce effects similar to those represented in the paper, with a reasonable explanation. However, since some of the results from the original paper may be difficult to implement in our new model, we will further explore these aspects using numerical analysis.
+
+\subsection{Numerical Analysis}
+Similarly, we will use the same number set given by the paper $\alpha=1.636\text{, }\beta=0.002\text{, }\delta_1=0.3743\text{, }\omega_1=0.04\text{, }\omega_2=0.38\text{, }\delta_2=0.055$. Furthermore, for the parameters that we introduced for our new model, we take $\sigma_3 = 0.01$, $w_3 = 0.001$ and $\delta_3 = 0.055$ because in human peripheral blood mononuclear cells (PBMCs) we can find that up to of 30\% of total PBMCs are CD8+ T cells \textcolor{blue}{\cite{miltenyi}} while NKTs make up only 0.01-0.1\% \textcolor{blue}{\cite{qin}} --- in taking the given value of $\sigma_2$ to be about 30\%, then we can obtain the above value for $\sigma_3$ through direct calculation. Note that the natural lifespan of iNKT cells is something yet to be fully understood as there are many complex factors to account for (such as age and weight) so for the sake of simplicity we consider its lifespan to be the same as that of the CD4+ cells since they both are T cells. Thus $\delta_3$ is chosen to be the same as $\delta_2$.\\
+\newline 
+For \textbf{Theorem }\textcolor{blue}{\eqref{eq:20}}, by substitute the value we have, we get $1.636-\xi \frac{0.01}{0.055} < 0$ thus $\xi > 8.99$, we have $0.3743 > 0.01\times \frac{0.38}{0.055} + \gamma \frac{0.19}{0.055}$ thus $\gamma < 2.4389$. Therefore, pick $\xi = 9.00$, $\gamma = 0.01$, $\rho = 0.01$, we get the following graph:
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.30]{3.4.1.png}
+    \caption{model comparison for Theorem 3.1}
+\end{figure}
+\newline
+\noindent From the right part of the graph, we can observe a tumor-free stable equilibrium as the concentration of TCs quickly vanishes, which matches the results described in the theorem. For comparison, with the same parameters, adding iNKT results in a rapid decrease of TCs compared to the original model, in accordance with the conditions of \textbf{Theorem }\textcolor{blue}{\eqref{eq:20}}. Note that the conditions specified in this theorem are nearly impossible to meet in the natural immune system, as it requires the apoptosis rate $(\xi)$ of iNKT to be larger than 8.99, compared to other parameters which are in the range of 0.01 to 1.5 in the system. In other words, it is not possible to achieve a tumor-free steady state in the natural immune system without any treatment.\\
+\newline
+ Note that with the immense amount of variables and the complexity of the expressions, we fail to derive interpretable biological understandings directly for the parameter conditions and so we consider interpretations from numerical simulations with arbitrary parameters. For \textbf{Theorem }\textcolor{blue}{\eqref{eq:21}}, substitute the values into $\rho z_0 + \gamma \eta_0 < \delta_1$, we have $\gamma < 1.67865$. Thus pick $\gamma = 1.5$ and substitute into $\alpha < y_0 + \xi\eta_0$ where $y_0 = \frac{\sigma_1\delta_2\delta_3}{\delta_1\delta_2\delta_3 - \rho\sigma_2\delta_3 - \gamma \sigma_3\delta_2}$, thus we have $\xi > -10.9994$. \\
+\newline
+Therefore pick $\gamma = 1.5$ and $\xi = 0.24$, we can obtain the following graph:
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.30]{figure3.3.png}
+    \caption{model comparison for Theorem 3.3}
+\end{figure}
+\newpage
+\noindent From the right part of the graph, we can observe a tumor-free stable equilibrium as the concentration of TCs quickly vanishes, which matches the results described in the theorem. Furthermore, since in this case $\gamma = 1.5$ and $\xi = 0.24$, which are significantly lower than the values in the non-treatment case, and since $0.24$ is a reasonably typical value for the apoptosis rate of iNKT cells, we can conclude that an equilibrium with treatment is achievable in a natural immune system environment. \\
+\newline
+Furthermore, as a more general comparison to the model introduced in paper, if we take $\gamma = 0.05$ and $\xi = 0.05$, then we will obtain the following graph: 
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.30]{Figure100.png}
+    \caption{general model comparison}
+\end{figure}
+\newline
+With the same time scale and concentration scale, we can observe that TCs in both graphs result in oscillations. From the previous section, we see that this leads to a stable limit cycle. However, it is evident that the amplitude of the oscillation in the new model is obviously smaller than in the original model. This suggests that the addition of iNKT cells will reduce the number of TCs, in accordance with the behavior observed in iNKT cells. This decrease in limit cycle amplitude may be explained biologically by understanding that certain parameter values push the ECs to become balanced with the TCs, and introducing a new parameter similar to EC will share redistribute the balance over three factions.
+
+\section{Conclusion}
+
+Using mathematical models, we explored the significant role of helper T cells (HTCs) in enhancing the immune response against tumors. Incorporating HTCs into existing models reveal that they can induce complex periodic oscillations in tumor-immune dynamics under certain parameter values. It suggests that adjusting treatment parameters related to HTCs activation could optimize immunotherapy outcomes, providing a theoretical basis for designing more effective cancer treatments by understanding and manipulating the intricate dynamics of the immune system. \\
+\newline
+For our extension, we introduce a new variety, namely iNKT, and incorporate it into the model developed by Dong et al. We employed a similar approach to that described in the former to demonstrate the validity of our new model. The results show that the extended model has various equilibria representing tumor-dominant and tumor-free states under both non-treatment and treatment scenarios --- confirmed through stability analysis and numerical simulations. Our results indicate that the extended model behaves similarly to the existing model, suggesting that the new model is reasonable. We also note that our extended model not only displays the stable equilibria at similar points to that of the original model by Dong et al., but also that this new model yields smaller oscillation amplitudes for equilibria that violate the stability conditions. Biologically, this indicates the iNKT population is sharing the distribution of the EC-TC population balance. This may allow us to provide more variation in the parameter spaces (for stable steady states) for one of iNKT and HTC if we were given full information about the other. In other words, in the case that the HTC parameters are confirmed and that we see the model displays oscillatory behavior (coexistence of immune cells and tumor cells), we may be able to find iNKT parameters that adjust the system to become stable. However, this will require a higher level of biological understanding of the interactions between TCs, ECs, and iNKTs. Furthermore, more experiments and additional computational power can be utilized to further improve the model, either to improve numerical implementation or to discover more generalized formulas for a natural immune system equilibrium.
+
+\newpage
+
+\printbibliography
+
+\newpage
+
+\appendix
+
+\section{Characteristic Equation of the Extension Model}\label{appendix:a}
+\begin{align*}
+0 &= 2\alpha\beta\delta_1\delta_2\delta_3x + 2\alpha\beta\delta_1\delta_2\lambda x - 2\alpha\beta\delta_1\delta_2w_3x^2 + 2\alpha\beta\delta_1\delta_3\lambda x - 2\alpha\beta\delta_1\delta_3w_2x^2 + 2\alpha\beta\delta_1\lambda^2x \\
+&\quad- 2\alpha\beta\delta_1\lambda w_2x^2 - 2\alpha\beta\delta_1\lambda w_3x^2 + 2\alpha\beta\delta_1w_2w_3x^3 - 2\alpha\beta\delta_2\delta_3\eta\gamma x + 2\alpha\beta\delta_2\delta_3\lambda x \\
+&\quad- 2\alpha\beta\delta_2\delta_3\rho xz - 2\alpha\beta\delta_2\delta_3w_1x^2 - 2\alpha\beta\delta_2\eta\gamma\lambda x + 2\alpha\beta\delta_2\eta\gamma w_3x^2 + 2\alpha\beta\delta_2\lambda^2x \\
+&\quad- 2\alpha\beta\delta_2\lambda\rho xz - 2\alpha\beta\delta_2\lambda w_1x^2 - 2\alpha\beta\delta_2\lambda w_3x^2 + 2\alpha\beta\delta_2\rho w_3x^2z + 2\alpha\beta\delta_2w_1w_3x^3 \\
+&\quad- 2\alpha\beta\delta_3\eta\gamma\lambda x + 2\alpha\beta\delta_3\eta\gamma w_2x^2 + 2\alpha\beta\delta_3\lambda^2x - 2\alpha\beta\delta_3\lambda\rho xz - 2\alpha\beta\delta_3\lambda w_1x^2 \\
+&\quad- 2\alpha\beta\delta_3\lambda w_2x^2 + 2\alpha\beta\delta_3\rho w_2x^2z + 2\alpha\beta\delta_3w_1w_2x^3 - 2\alpha\beta\eta\gamma\lambda^2x + 2\alpha\beta\eta\gamma\lambda w_2x^2 \\
+&\quad+ 2\alpha\beta\eta\gamma\lambda w_3x^2 - 2\alpha\beta\eta\gamma w_2w_3x^3 + 2\alpha\beta\lambda^3x - 2\alpha\beta\lambda^2\rho xz - 2\alpha\beta\lambda^2w_1x^2 \\
+&\quad- 2\alpha\beta\lambda^2w_2x^2 - 2\alpha\beta\lambda^2w_3x^2 + 2\alpha\beta\lambda\rho w_2x^2z + 2\alpha\beta\lambda\rho w_3x^2z + 2\alpha\beta\lambda w_1w_2x^3 \\
+&\quad+ 2\alpha\beta\lambda w_1w_3x^3 + 2\alpha\beta\lambda w_2w_3x^3 - 2\alpha\beta\rho w_2w_3x^3z - 2\alpha\beta w_1w_2w_3x^4 - \alpha\delta_1\delta_2\delta_3 \\
+&\quad- \alpha\delta_1\delta_2\lambda + \alpha\delta_1\delta_2w_3x - \alpha\delta_1\delta_3\lambda + \alpha\delta_1\delta_3w_2x - \alpha\delta_1\lambda^2 \\
+&\quad+ \alpha\delta_1\lambda w_2x + \alpha\delta_1\lambda w_3x - \alpha\delta_1w_2w_3x^2 + \alpha\delta_2\delta_3\eta\gamma - \alpha\delta_2\delta_3\lambda \\
+&\quad+ \alpha\delta_2\delta_3\rho z + \alpha\delta_2\delta_3w_1x + \alpha\delta_2\eta\gamma\lambda - \alpha\delta_2\eta\gamma w_3x - \alpha\delta_2\lambda^2 \\
+&\quad+ \alpha\delta_2\lambda\rho z + \alpha\delta_2\lambda w_1x + \alpha\delta_2\lambda w_3x - \alpha\delta_2\rho w_3x z - \alpha\delta_2w_1w_3x^2 \\
+&\quad+ \alpha\delta_3\eta\gamma\lambda - \alpha\delta_3\eta\gamma w_2x - \alpha\delta_3\lambda^2 + \alpha\delta_3\lambda\rho z + \alpha\delta_3\lambda w_1x \\
+&\quad+ \alpha\delta_3\lambda w_2x - \alpha\delta_3\rho w_2x z - \alpha\delta_3w_1w_2x^2 + \alpha\eta\gamma\lambda^2 - \alpha\eta\gamma\lambda w_2x \\
+&\quad- \alpha\eta\gamma\lambda w_3x + \alpha\eta\gamma w_2w_3x^2 - \alpha\lambda^3 + \alpha\lambda^2\rho z + \alpha\lambda^2w_1x + \alpha\lambda^2w_2x \\
+&\quad+ \alpha\lambda^2w_3x - \alpha\lambda\rho w_2x z - \alpha\lambda\rho w_3x z - \alpha\lambda w_1w_2x^2 - \alpha\lambda w_1w_3x^2 \\
+&\quad- \alpha\lambda w_2w_3x^2 + \alpha\rho w_2w_3x^2z + \alpha w_1w_2w_3x^3 + \delta_1\delta_2\delta_3\eta\xi + \delta_1\delta_2\delta_3\lambda \\
+&\quad+ \delta_1\delta_2\delta_3y + \delta_1\delta_2\eta\lambda\xi + \delta_1\delta_2\lambda^2 - \delta_1\delta_2\lambda w_3x + \delta_1\delta_2\lambda y - \delta_1\delta_2w_3xy \\
+&\quad+ \delta_1\delta_3\eta\lambda\xi - \delta_1\delta_3\eta w_2x\xi + \delta_1\delta_3\lambda^2 - \delta_1\delta_3\lambda w_2x + \delta_1\delta_3\lambda y \\
+&\quad- \delta_1\delta_3w_2xy + \delta_1\eta\lambda^2\xi - \delta_1\eta\lambda w_2x\xi + \delta_1\lambda^3 - \delta_1\lambda^2 w_2x - \delta_1\lambda^2 w_3x \\
+&\quad+ \delta_1\lambda^2 y + \delta_1\lambda w_2w_3x^2 - \delta_1\lambda w_2xy - \delta_1\lambda w_3xy + \delta_1w_2w_3x^2y \\
+&\quad- \delta_2\delta_3\eta^2\gamma\xi - \delta_2\delta_3\eta\gamma\lambda - \delta_2\delta_3\eta\gamma y + \delta_2\delta_3\eta\lambda\xi - \delta_2\delta_3\eta\rho\xi z \\
+&\quad- \delta_2\delta_3\eta w_1x\xi + \delta_2\delta_3\lambda^2 - \delta_2\delta_3\lambda\rho z - \delta_2\delta_3\lambda w_1x + \delta_2\delta_3\lambda y \\
+&\quad- \delta_2\delta_3\rho yz - \delta_2\eta^2\gamma\lambda\xi - \delta_2\eta\gamma\lambda^2 + \delta_2\eta\gamma\lambda w_3x - \delta_2\eta\gamma\lambda y \\
+&\quad+ 2\delta_2\eta\gamma w_3xy + \delta_2\eta\lambda^2\xi - \delta_2\eta\lambda\rho\xi z - \delta_2\eta\lambda w_1x\xi + \delta_2\lambda^3 - \delta_2\lambda^2\rho z \\
+&\quad- \delta_2\lambda^2 w_1x - \delta_2\lambda^2 w_3x + \delta_2\lambda^2 y + \delta_2\lambda\rho w_3xz - \delta_2\lambda\rho yz + \delta_2\lambda w_1w_3x^2 \\
+&\quad- \delta_2\lambda w_3xy + \delta_2\rho w_3xyz - \delta_3\eta^2\gamma\lambda\xi + \delta_3\eta^2\gamma w_2x\xi - \delta_3\eta\gamma\lambda^2 \\
+&\quad+ \delta_3\eta\gamma\lambda w_2x - \delta_3\eta\gamma\lambda y + \delta_3\eta\gamma w_2xy + \delta_3\eta\lambda^2\xi - \delta_3\eta\lambda\rho\xi z \\
+&\quad- \delta_3\eta\lambda w_1x\xi - \delta_3\eta\lambda w_2x\xi + \delta_3\eta\rho w_2x\xi z + \delta_3\eta w_1w_2x^2\xi + \delta_3\lambda^3 \\
+&\quad- \delta_3\lambda^2\rho z - \delta_3\lambda^2 w_1x - \delta_3\lambda^2 w_2x + \delta_3\lambda^2 y + \delta_3\lambda\rho w_2xz - \delta_3\lambda\rho yz \\
+&\quad+ \delta_3\lambda w_1w_2x^2 - \delta_3\lambda w_2xy + 2\delta_3\rho w_2xy z - \eta^2\gamma\lambda^2\xi + \eta^2\gamma\lambda w_2x\xi \\
+&\quad- \eta\gamma\lambda^3 + \eta\gamma\lambda^2 w_2x + \eta\gamma\lambda^2 w_3x - \eta\gamma\lambda^2 y - \eta\gamma\lambda w_2w_3x^2 \\
+&\quad+ \eta\gamma\lambda w_2xy + 2\eta\gamma\lambda w_3xy - 2\eta\gamma w_2w_3x^2y + \eta\lambda^3\xi - \eta\lambda^2\rho\xi z \\
+&\quad- \eta\lambda^2 w_1x\xi - \eta\lambda^2 w_2x\xi + \eta\lambda\rho w_2x\xi z + \eta\lambda w_1w_2x^2\xi + \lambda^4 - \lambda^3\rho z \\
+&\quad- \lambda^3 w_1x - \lambda^3 w_2x - \lambda^3 w_3x + \lambda^3 y + \lambda^2\rho w_2xz + \lambda^2\rho w_3xz - \lambda^2\rho yz \\
+&\quad+ \lambda^2 w_1w_2x^2 + \lambda^2 w_1w_3x^2 + \lambda^2 w_2w_3x^2 - \lambda^2 w_2xy - \lambda^2 w_3xy - \lambda\rho w_2w_3x^2z \\
+&\quad+ 2\lambda\rho w_2xy z + \lambda\rho w_3xy z - \lambda w_1w_2w_3x^3 + \lambda w_2w_3x^2y - 2\rho w_2w_3x^2y z
+\end{align*}
+
+\newpage
+\section{Python Code}
+
+\begin{minted}{Python}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+from sympy import symbols, solve, Matrix, N
+from scipy.linalg import eigvals
+
+alpha = 1.636
+beta = 0.002
+delta1 = 0.3743
+w1 = 0.04
+sigma2 = 0.38
+delta2 = 0.055
+xi = 0.05 
+
+times = np.linspace(0, 800, 10000)
+
+def noTrt():
+    sigma1 = 0
+    rho = 0.01
+    w2 = 0.002
+    init = [1, 1, 1]
+    S = odeint(model, init, times, args=(sigma1, rho, w2))
+    plt.plot(times, S[:,0], label='TC', linewidth=2)
+    plt.plot(times, S[:,1], label='EC', linewidth=2)
+    plt.plot(times, S[:,2], label='HTC', linewidth=2)
+    plt.title('Original without Treatment')
+    plt.ylabel("Concentration")
+    plt.xlabel("Time")
+    plt.legend()
+
+def withTrt():
+    times = np.linspace(0, 250, 10000)
+    sigma1 = 0.1181
+    rho = 0.01
+    w2 = 0.002
+    init = [1, 1, 1]
+    S = odeint(model, init, times, args=(sigma1, rho, w2))
+    plt.plot(times, S[:,0], label='TC', linewidth=2)
+    plt.plot(times, S[:,1], label='EC', linewidth=2)
+    plt.plot(times, S[:,2], label='HTC', linewidth=2)
+    plt.title('Original with Treatment')
+    plt.ylabel("Concentration")
+    plt.xlabel("Time")
+    plt.legend()
+
+def withTrtOsc():
+    sigma1 = 0.1181
+    rho = 0.001
+    w2 = 0.02
+    init = [1, 1, 1]
+    S = odeint(model, init, times, args=(sigma1, rho, w2))
+    plt.yscale('log')
+    plt.plot(times, S[:,0], label='TC', linewidth=2)
+    plt.plot(times, S[:,1], label='EC', linewidth=2)
+    plt.plot(times, S[:,2], label='HTC', linewidth=2)
+    plt.title('Original with Treatment and Oscillation')
+    plt.ylabel("Concentration")
+    plt.xlabel("Time")
+    plt.legend()
+
+def noTrtiNKT():
+    sigma1 = 0
+    rho = 0.01
+    w2 = 0.002
+    sigma3 = 0.01
+    w3 = 0.001
+    delta3 = 0.055
+
+    gamma = 1
+
+    init = [1, 1, 1, .1]
+    S = odeint(Nmodel, init, times, args=(sigma1, rho, w2, sigma3, w3, delta3, gamma))
+    plt.plot(times, S[:,0], label='TC', linewidth=2)
+    plt.plot(times, S[:,1], label='EC', linewidth=2)
+    plt.plot(times, S[:,2], label='HTC', linewidth=2)
+    plt.plot(times, S[:,3], label='iNKT', linewidth=2)
+    plt.title('iNKT without Treatment')
+    plt.ylabel("Concentration")
+    plt.xlabel("Time")
+    plt.legend()
+
+    last_values = S[-1]
+    return last_values
+
+
+def withTrtiNKT():
+    times = np.linspace(0, 250, 10000)
+    sigma1 = 0.1181
+    rho = 0.01
+    w2 = 0.002
+    sigma3 = 0.01
+    w3 = 0.001
+    delta3 = 0.055
+    gamma = 1.6
+    init = [1, 1, 1, .1]
+    S = odeint(Nmodel, init, times, args=(sigma1, rho, w2, sigma3, w3, delta3, gamma))
+    #plt.yscale('log')
+    plt.plot(times, S[:,0], label='TC', linewidth=2)
+    plt.plot(times, S[:,1], label='EC', linewidth=2)
+    plt.plot(times, S[:,2], label='HTC', linewidth=2)
+    plt.plot(times, S[:,3], label='iNKT', linewidth=2)
+    plt.title('iNKT Interaction with Treatment')
+    plt.ylabel("Concentration")
+    plt.xlabel("Time")
+    plt.legend()
+
+    last_values = S[-1]
+    return last_values
+    
+def withTrtOsciNKT():
+    sigma1 = 0.1181
+    rho = 0.001
+    w2 = 0.02
+    w3 = 0.01
+    sigma3 = 0.01
+    delta3 = 0.055
+    gamma = 0.05
+    init = [1, 1, 1, .1]
+    S = odeint(Nmodel, init, times, args=(sigma1, rho, w2, sigma3, w3, delta3, gamma))
+    plt.yscale('log')
+    plt.plot(times, S[:,0], label='TC', linewidth=2)
+    plt.plot(times, S[:,1], label='EC', linewidth=2)
+    plt.plot(times, S[:,2], label='HTC', linewidth=2)
+    plt.plot(times, S[:,3], label='iNKT', linewidth=2)
+    plt.title('iNKT with Treatment and Oscillation')
+    plt.ylabel("Concentration")
+    plt.xlabel("Time")
+    plt.legend()
+
+    last_values = S[-1]
+    return last_values
+    
+def model(S, t, sigma1, rho, w2):
+    dS = np.zeros(3)
+    x, y, z = S
+    dS[0] = alpha*x*(1 - beta*x) - x*y              # TC
+    dS[1] = sigma1 + w1*x*y - delta1*y + rho*y*z    # EC CD8+
+    dS[2] = sigma2 + w2*x*z - delta2*z              # HTC CD4+
+    return dS
+
+
+def Nmodel(S, t, sigma1, rho, w2, sigma3, w3, delta3, gamma):
+    dS = np.zeros(4)
+    x, y, z, iNKT = S
+    dS[0] = alpha*x*(1 - beta*x) - x*y - x*xi*iNKT                  # TC
+    dS[1] = sigma1 + w1*x*y - delta1*y + rho*y*z + gamma*y*iNKT     # EC CD8+
+    dS[2] = sigma2 + w2*x*z - delta2*z                              # HTC CD4+
+    dS[3] = sigma3 + w3*x*iNKT - delta3*iNKT                        # iNKT
+    return dS
+
+
+fig, axs = plt.subplots(1, 2)
+plt.sca(axs[0])
+withTrtOsc()
+plt.sca(axs[1])
+withTrtOsciNKT()
+plt.tight_layout()
+plt.show()
+
+
+def eigenvalue_cal(TC, EC, HTC, iNKT):
+    alpha = 1.636
+    beta = 0.002
+    delta1 = 0.3743
+    w1 = 0.04
+    sigma2 = 0.38
+    delta2 = 0.055
+    sigma1 = 0.1181
+    rho = 0.01
+    w2 = 0.002
+    sigma3 = 0.01
+    w3 = 0.001
+    delta3 = 0.055
+    gamma = 0.9
+    
+    J_evaluated = Matrix([
+        [alpha * (1 - 2 * beta * TC) - EC - xi * iNKT, -TC, 0, -TC * xi],
+        [EC * w1, w1 * TC - delta1 + rho * HTC + gamma * iNKT, EC * rho, EC * gamma],
+        [w2 * HTC, 0, w2 * TC - delta2, 0],
+        [w3 * iNKT, 0, 0, w3 * TC - delta3]
+    ])
+
+    eigenvalues_evaluated = J_evaluated.eigenvals()
+    print(eigenvalues_evaluated)
+
+\end{minted}
+
+\end{document}
